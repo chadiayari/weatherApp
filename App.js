@@ -1,8 +1,29 @@
 import { StyleSheet, View, Text, ScrollView, Dimensions } from "react-native";
+import * as Location from 'expo-location';
+import React, {useEffect, useState} from "react"
 
 const SCREEN_WIDTH = Dimensions.get("window").width
 
 export default function App() {
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(true);
+  
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      const  {coords:{latitude, longitude}} = await Location.getCurrentPositionAsync({ accuracy: 5 })
+      const  location = await Location.reverseGeocodeAsync( {latitude,longitude}, { useGoogleMaps:false })
+      console.log(location)
+      setLocation(location);
+
+    })();
+  }, []);
+
   return (
     <View style={styles.main_container}>
       <View style={styles.city}>
